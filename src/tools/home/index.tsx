@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { tools } from "@/tools/registry"
 import { ToolIcon } from "@/components/icons"
+import { useFavicon } from "@/hooks/use-favicon"
 
 /** Animated dot grid background */
 function DotGrid() {
@@ -82,6 +83,7 @@ function DotGrid() {
 
 export default function Home() {
   const navigate = useNavigate()
+  useFavicon("home")
 
   useEffect(() => {
     document.title = "Studio — Generative Design Tools"
