@@ -427,16 +427,18 @@ export const tools: ToolDefinition[] = [
 **Renderer:** p5.js, `noLoop()` + `redraw()`
 **Canvas:** Selectable square (600/800/1000/1200)
 
-**Settings:** (40+ settings)
-- seed, canvasSize, bgColor, margin, patternType (10 types)
-- Grid: columns, rows, jitter
-- Shape: shapeType, minSize, maxSize, strokeWeight, filled, rotation
+**Settings:** (40+ settings, nested sub-objects for pattern/brush types)
+- Core: seed, canvasSize, bgColor, margin, patternType (6 types: dotGrid/flowField/concentric/waves/hatching/geometric)
+- Grid (dotGrid): columns, rows, jitter
+- Shape (dotGrid/geometric): shapeType (circle/square/line/cross/ring/diamond), minSize, maxSize, strokeWeight, filled, rotation
 - Organic: wobble, roughness, strokeTaper
-- Brush: brushType (5 types) with type-specific sub-settings
-- Colors: lineColor, fillColor
-- Effects: opacity, blendMode, layerCount, noiseInfluence, gradientFill
+- Brush (flowField/concentric/waves/hatching): brushType (normal/stippled/multiStroke/calligraphic/stamp) with type-specific nested sub-settings
+- Noise: noiseScale, noiseIntensity
+- Pattern-specific: flowField (lineCount/stepLength/steps), concentric (count/spacing), waves (count/amplitude/frequency), hatching (angle/spacing/crossHatch), geometric (shape/size)
+- Colors: palette (12 presets), colors[] array
+- Texture: textureAmount (paper fibers + scratches + grain via canvas 2D API)
 
-**Sections:** Pattern, Grid, Shape, Organic, Brush (conditional), Colors, Effects, Actions
+**Sections:** Canvas, Pattern (conditional sub-controls), Shape (conditional), Brush (conditional with sub-controls), Organic, Noise, Color, Texture, Actions
 
 ---
 
@@ -497,7 +499,7 @@ export const tools: ToolDefinition[] = [
 
 ## Implementation Phases
 
-**Current phase: 8**
+**Current phase: 9**
 
 - [x] **Phase 1: Scaffold + App Shell** — Vite + React 19 + TS strict + Tailwind v4 + shadcn. Three-column layout (ToolSwitcher / CanvasArea / Sidebar). 9 lazy-loaded routes with localStorage redirect. Dithered squircle icons per tool with color palettes. Dark theme. Done.
 - [x] **Phase 2: Shared Controls** — 6 shadcn/ui primitives (button, slider, select, popover, collapsible, switch) + 8 control components (section, slider-control, select-control, color-control, switch-control, button-row, gradient-editor, palette-editor). PaletteColor type added. Topo wired with demo controls for visual verification. Done.
@@ -507,7 +509,7 @@ export const tools: ToolDefinition[] = [
 - [x] **Phase 6: Port Organic** — First use of GradientEditor, dynamic algorithm-specific controls. 3 path types (flowField/wandering/waves) with per-algorithm settings sections. 10 palette presets + custom gradient via ColorStop editor. Organic effects (wobble/roughness/taper), texture and grain post-processing. Path generation cached separately from rendering for slider responsiveness. Done.
 - [x] **Phase 7: Port Dither** — Canvas 2D (no p5/Three.js). Bayer matrices, pattern thresholds, gradient generation, and dithering core consolidated into `engine.ts`. Compact inline PaletteEditor (swatch + hex + weight slider + %). SVG export via `svg.ts`. Image upload + drag-and-drop. 4 palette presets. Default: Game Boy palette, square shape, 45° linear gradient. Done.
 - [x] **Phase 8: Port Gradients** — First WEBGL shader tool. Fragment shader ported verbatim (simplex noise, FBM, domain warping, glass waves, gradient interpolation, lighting/fresnel, grain, adjustments). Offscreen `createGraphics(WEBGL)` rendered to 2D main canvas. Animation toggle via internal `wasAnimating` flag (`p.loop()`/`p.noLoop()` switching) without `useP5` animated mode. MP4 recording via `createRecorder` with forced animation. 18 preset palettes + HSL random generation. Cached color stop parsing and container size to avoid per-frame allocations/DOM reads during animation. GradientEditor and PaletteEditor both use react-colorful HexColorPicker popover for consistent color picking across tools. Done.
-- [ ] **Phase 9: Port Plotter** — Large conditional controls based on patternType and brushType.
+- [x] **Phase 9: Port Plotter** — 6 pattern types (dotGrid/flowField/concentric/waves/hatching/geometric) with conditional controls per pattern. 5 brush types (normal/stippled/multiStroke/calligraphic/stamp) with conditional sub-settings. Organic distortion (wobble/roughness/taper). Layer system simplified to flat `colors[]` array with 12 palette presets. Shape controls for dotGrid/geometric, brush controls for path-based patterns. Custom paper texture (fibers + scratches + grain) via canvas 2D API. Noise sliders need `decimals` prop for fractional display. Done.
 - [ ] **Phase 10: Port Metal Shader** — Three.js integration. useThree hook. Only 2 settings.
 - [ ] **Phase 11: Port ASCII** — 4605 lines inline JS extraction. 60+ settings. Image upload.
 - [ ] **Phase 12: Port Lines** — Largest tool. Two gradient editors. Animation + video. 65+ settings. WEBGL buffer cleanup.
