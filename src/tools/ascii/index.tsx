@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react"
 import { useSettings } from "@/hooks/use-settings"
 import { useP5 } from "@/hooks/use-p5"
-import { exportPNG, generateFilename } from "@/lib/export"
+import { exportPNG, exportSVGFromCanvas, generateFilename } from "@/lib/export"
 import { CanvasArea } from "@/components/canvas-area"
 import { Sidebar } from "@/components/sidebar"
 import { Section } from "@/components/controls/section"
@@ -250,6 +250,13 @@ export default function Ascii() {
     exportPNG(canvas, generateFilename("ascii", "png"))
   }, [p5Ref])
 
+  const handleExportSVG = useCallback(() => {
+    const canvas = (p5Ref.current as unknown as { canvas: HTMLCanvasElement })
+      ?.canvas
+    if (!canvas) return
+    exportSVGFromCanvas(canvas, generateFilename("ascii", "svg"))
+  }, [p5Ref])
+
   function randomize() {
     const r = Math.random
     const ri = (min: number, max: number) =>
@@ -389,7 +396,7 @@ export default function Ascii() {
     update(patch)
   }
 
-  useShortcutActions({ randomize, reset, download: handleExportPNG })
+  useShortcutActions({ randomize, reset, download: handleExportSVG })
 
   const enabledSets = SET_NAMES.filter((n) => settings.setConfig[n].enabled)
 
@@ -407,9 +414,16 @@ export default function Ascii() {
             <Button
               variant="primary"
               className="w-full"
+              onClick={handleExportSVG}
+            >
+              Export SVG <Kbd>⌘S</Kbd>
+            </Button>
+            <Button
+              variant="secondary"
+              className="w-full"
               onClick={handleExportPNG}
             >
-              Download <Kbd>⌘S</Kbd>
+              Export PNG
             </Button>
           </ButtonRow>
         }

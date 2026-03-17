@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from 'react'
 import { useSettings } from '@/hooks/use-settings'
 import { useP5 } from '@/hooks/use-p5'
-import { exportPNG, generateFilename, createRecorder } from '@/lib/export'
+import { exportPNG, exportSVGFromCanvas, generateFilename, createRecorder } from '@/lib/export'
 import { CanvasArea } from '@/components/canvas-area'
 import { Sidebar } from '@/components/sidebar'
 import { Section } from '@/components/controls/section'
@@ -83,7 +83,7 @@ export default function Gradients() {
   )
 
   useP5(containerRef, sketchFn, settings)
-  useShortcutActions({ randomize, reset, download })
+  useShortcutActions({ randomize, reset, download: handleExportSVG })
 
   function handleColorStopsChange(colorStops: ColorStop[]) {
     update({ colorStops })
@@ -132,10 +132,17 @@ export default function Gradients() {
     })
   }
 
-  function download() {
+  function handleExportPNG() {
     const canvas = containerRef.current?.querySelector('canvas')
     if (canvas) {
       exportPNG(canvas, generateFilename('gradients', 'png'))
+    }
+  }
+
+  function handleExportSVG() {
+    const canvas = containerRef.current?.querySelector('canvas')
+    if (canvas) {
+      exportSVGFromCanvas(canvas, generateFilename('gradients', 'svg'))
     }
   }
 
@@ -176,7 +183,8 @@ export default function Gradients() {
         <ButtonRow>
           <Button variant="secondary" onClick={randomize}>Randomize <Kbd>R</Kbd></Button>
           <Button variant="secondary" onClick={reset}>Reset <Kbd>⌫</Kbd></Button>
-          <Button variant="primary" onClick={download}>Download PNG <Kbd>⌘S</Kbd></Button>
+          <Button variant="primary" onClick={handleExportSVG}>Export SVG <Kbd>⌘S</Kbd></Button>
+          <Button variant="secondary" onClick={handleExportPNG}>Export PNG</Button>
           <Button variant="secondary" onClick={toggleRecording}>
             {isRecording ? 'Stop Recording' : 'Record MP4'}
           </Button>

@@ -31,6 +31,22 @@ export function exportSVG(svgString: string, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
+/** Wrap a canvas PNG snapshot in an SVG container and download it. */
+export function exportSVGFromCanvas(
+  canvas: HTMLCanvasElement,
+  filename: string,
+): void {
+  const width = canvas.width;
+  const height = canvas.height;
+  const dataUrl = canvas.toDataURL("image/png");
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" ` +
+    `width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">` +
+    `<image href="${dataUrl}" width="${width}" height="${height}"/>` +
+    `</svg>`;
+  exportSVG(svg, filename);
+}
+
 interface RecorderOptions {
   width: number;
   height: number;
